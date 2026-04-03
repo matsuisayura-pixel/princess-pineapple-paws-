@@ -18,6 +18,7 @@ from datetime import datetime
 
 DB_PATH = Path(__file__).parent / "data" / "pineapple_paws.db"
 POSTS_JSON = Path(__file__).parent.parent / "instagram_posts_full.json"
+REELS_JSON = Path(__file__).parent.parent / "instagram_reels_full.json"
 
 # グループ検出キーワード
 GROUP_KEYWORDS = [
@@ -212,15 +213,19 @@ def parse_date(date_str: str) -> str:
 
 
 def main():
-    with open(POSTS_JSON, encoding="utf-8") as f:
-        posts = json.load(f)
+    posts = []
+    for src in [POSTS_JSON, REELS_JSON]:
+        if src.exists():
+            with open(src, encoding="utf-8") as f:
+                posts.extend(json.load(f))
+    print(f"投稿合計: {len(posts)}件")
 
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
 
-    # 既存のパイナップルネキ（Instagramキャプション由来）データを削除
-    cur.execute("DELETE FROM spots WHERE source_url LIKE '%instagram%' AND media_title LIKE '%保存版%'")
+    # 既存のInstagramデータを全削除して再インポート
+    cur.execute("DELETE FROM spots WHERE source_url LIKE '%instagram%'")
     deleted = cur.rowcount
     print(f"既存Instagramデータ削除: {deleted}件")
 
