@@ -770,10 +770,15 @@ function sortByDebut(groups){
 }
 
 // ===== LOAD GROUPS UI =====
+// ソロアーティスト：スポットデータがなくても常に表示
+const ALWAYS_SHOW_SOLOS = ['内博貴','上田竜也','中島健人'];
+
 async function loadGroupsUI(){
   try{
     const data=await(await fetch('/talents')).json();
-    const groups=sortByDebut(data.groups);
+    // ソロを常に含める（重複防止）
+    const allGroups=new Set([...data.groups, ...ALWAYS_SHOW_SOLOS]);
+    const groups=sortByDebut([...allGroups]);
     // chips in filter panel
     const cc=document.getElementById('group-chips');
     const all=Object.assign(document.createElement('button'),{className:'chip active',textContent:'すべて'});
