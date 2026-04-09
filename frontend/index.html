@@ -152,16 +152,18 @@
     .c-chip:hover  { background: rgba(244,114,182,.08); }
     .c-chip.active { background: rgba(244,114,182,.15); transform: scale(1.06); }
     .c-dot {
-      width: 30px; height: 30px; border-radius: 50%;
+      width: 36px; height: 36px; border-radius: 50%;
       border: 2.5px solid rgba(255,255,255,.9);
       box-shadow: 0 2px 8px rgba(0,0,0,.15);
       transition: box-shadow .15s, transform .15s;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; line-height: 1;
     }
     .c-chip.active .c-dot { transform: scale(1.12); box-shadow: 0 0 0 2.5px white, 0 0 0 4.5px var(--dot-color), 0 4px 10px rgba(0,0,0,.2); }
     .c-label {
-      font-size: .56rem; font-weight: 700; color: var(--text);
-      text-align: center; white-space: nowrap; max-width: 48px;
-      overflow: hidden; text-overflow: ellipsis;
+      font-size: .52rem; font-weight: 700; color: var(--text);
+      text-align: center; max-width: 52px;
+      word-break: keep-all; white-space: normal; line-height: 1.2;
     }
 
     /* Active filter bar */
@@ -498,8 +500,10 @@ const ge = g => GE[g] || '🍍';
 
 // ===== MAP =====
 const map = L.map('map',{center:[35.6762,139.6503],zoom:11,zoomControl:false});
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
-  attribution:'&copy; OpenStreetMap &copy; CARTO',subdomains:'abcd',maxZoom:19
+// 国土地理院 淡色地図（日本語表記）
+L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png',{
+  attribution:'<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">国土地理院</a>',
+  maxZoom:18
 }).addTo(map);
 L.control.zoom({position:'topright'}).addTo(map);
 
@@ -764,7 +768,8 @@ async function loadGroupsUI(){
       const color=gc(g);
       const div=document.createElement('div');
       div.className='c-chip'; div.style.setProperty('--dot-color',color);
-      div.innerHTML=`<div class="c-dot" style="background:${color}"></div><span class="c-label">${g}</span>`;
+      const emoji=ge(g);
+      div.innerHTML=`<div class="c-dot" style="background:${color}">${emoji}</div><span class="c-label">${g}</span>`;
       div.addEventListener('click',()=>{
         const on=div.classList.contains('active');
         document.querySelectorAll('.c-chip').forEach(x=>x.classList.remove('active'));
