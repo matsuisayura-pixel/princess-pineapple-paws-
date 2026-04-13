@@ -834,8 +834,24 @@ function openModal(id){
     `${talentTags}
      ${s.group_name?`<span class="tag" style="background:${color}22;color:${color}">${esc(s.group_name)}</span>`:''}`;
   const mc={TV:'tag-tv',YouTube:'tag-yt','雑誌':'tag-mag',SNS:'tag-sns'}[s.media_type]||'tag-tv';
-  const ytId=s.source_url&&/^[A-Za-z0-9_-]{11}$/.test(s.source_url)?s.source_url:null;
-  const mediaLink=ytId?`<a href="https://youtu.be/${ytId}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;opacity:.8">${esc(s.media_title||'')}</a>`:esc(s.media_title||'');
+  // YouTubeリンク抽出: 完全URL・Shorts URL・動画IDに対応
+  function extractYtUrl(url){
+    if(!url) return null;
+    // https://www.youtube.com/watch?v=XXXXX
+    let m=url.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+    if(m) return 'https://youtu.be/'+m[1];
+    // https://www.youtube.com/shorts/XXXXX
+    m=url.match(/\/shorts\/([A-Za-z0-9_-]{11})/);
+    if(m) return 'https://youtu.be/'+m[1];
+    // https://youtu.be/XXXXX
+    m=url.match(/youtu\.be\/([A-Za-z0-9_-]{11})/);
+    if(m) return 'https://youtu.be/'+m[1];
+    // 11文字の動画ID単体
+    if(/^[A-Za-z0-9_-]{11}$/.test(url)) return 'https://youtu.be/'+url;
+    return null;
+  }
+  const ytUrl=(s.media_type==='YouTube')?extractYtUrl(s.source_url):null;
+  const mediaLink=ytUrl?`<a href="${ytUrl}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;opacity:.8">${esc(s.media_title||'')}</a>`:esc(s.media_title||'');
   document.getElementById('d-media').innerHTML=`<span class="tag ${mc}">${esc(s.media_type||'')}</span>${s.media_title?` ${mediaLink}`:''}`;
   const me=document.getElementById('d-menu');
   me.innerHTML=s.menu_items
