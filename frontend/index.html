@@ -466,6 +466,7 @@
       <div class="i-row"><span class="i-icon">📅</span><div class="i-body"><div class="i-lbl">放送・掲載日</div><div class="i-val" id="d-date"></div></div></div>
       <div class="i-row"><span class="i-icon">⭐</span><div class="i-body"><div class="i-lbl">タレント</div><div class="i-val" id="d-talent"></div></div></div>
       <div class="i-row"><span class="i-icon">📺</span><div class="i-body"><div class="i-lbl">媒体</div><div class="i-val" id="d-media"></div></div></div>
+      <div class="i-row" id="d-covisit-row" style="display:none"><span class="i-icon">🤝</span><div class="i-body"><div class="i-lbl">他グループも訪問</div><div class="i-val" id="d-covisit"></div></div></div>
     </div>
     <div class="t-pane" id="t-menu"><div id="d-menu"></div></div>
     <div class="t-pane" id="t-access">
@@ -827,17 +828,35 @@ function openModal(id){
   document.getElementById('m-score').textContent=freshnessLabels[v]||'';
   document.getElementById('d-date').textContent=fmtDate(s.broadcast_date);
   const color=gc(s.group_name);
+  const talentTags=(s.talent_name||'').split(/[・,、]/).map(t=>t.trim()).filter(Boolean)
+    .map(t=>`<span class="tag tag-group">${esc(t)}</span>`).join('');
   document.getElementById('d-talent').innerHTML=
-    `${s.talent_name?`<span class="tag tag-group">${esc(s.talent_name)}</span>`:''}
+    `${talentTags}
      ${s.group_name?`<span class="tag" style="background:${color}22;color:${color}">${esc(s.group_name)}</span>`:''}`;
   const mc={TV:'tag-tv',YouTube:'tag-yt','雑誌':'tag-mag',SNS:'tag-sns'}[s.media_type]||'tag-tv';
-  document.getElementById('d-media').innerHTML=`<span class="tag ${mc}">${esc(s.media_type||'')}</span>${s.media_title?` ${esc(s.media_title)}`:''}`;
+  const ytId=s.source_url&&/^[A-Za-z0-9_-]{11}$/.test(s.source_url)?s.source_url:null;
+  const mediaLink=ytId?`<a href="https://youtu.be/${ytId}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;opacity:.8">${esc(s.media_title||'')}</a>`:esc(s.media_title||'');
+  document.getElementById('d-media').innerHTML=`<span class="tag ${mc}">${esc(s.media_type||'')}</span>${s.media_title?` ${mediaLink}`:''}`;
   const me=document.getElementById('d-menu');
   me.innerHTML=s.menu_items
     ?(s.menu_items.split(/[、,，\n]/).map(x=>x.trim()).filter(Boolean).map(x=>`<div class="m-item">${esc(x)}</div>`).join(''))
     :'<p style="color:#b08090;font-size:.85rem">メニュー情報なし</p>';
   document.getElementById('d-access').textContent=s.access_info||'情報なし';
   document.getElementById('d-maps').href=`https://www.google.com/maps/search/${encodeURIComponent(s.name+' '+(s.address||''))}`;
+  // 同名スポットを持つ他グループを表示
+  const coVisitors=allSpots.filter(x=>x.id!==s.id&&x.name===s.name);
+  const coRow=document.getElementById('d-covisit-row');
+  if(coVisitors.length>0){
+    const cvHtml=coVisitors.map(x=>{
+      const c2=gc(x.group_name);
+      const tname=x.talent_name?` <small style="opacity:.7">${esc(x.talent_name)}</small>`:'';
+      return `<span class="tag" style="background:${c2}22;color:${c2};cursor:pointer" onclick="openSpot(${x.id})">${esc(x.group_name||x.talent_name)}${tname}</span>`;
+    }).join(' ');
+    document.getElementById('d-covisit').innerHTML=cvHtml;
+    coRow.style.display='';
+  } else {
+    coRow.style.display='none';
+  }
   visited.add(s.id); localStorage.setItem('v',JSON.stringify([...visited]));
   render(shownSpots);
   tab('who',document.querySelector('.t-btn'));
