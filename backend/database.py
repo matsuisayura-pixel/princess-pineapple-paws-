@@ -11,7 +11,7 @@ class Base(DeclarativeBase):
 
 
 def init_db():
-    from models import Spot  # noqa: F401
+    from models import Spot, UserPost, SpotSubmission  # noqa: F401
     Base.metadata.create_all(bind=engine)
 
 

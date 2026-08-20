@@ -2,6 +2,33 @@ from sqlalchemy import Column, Integer, String, Float, Text
 from database import Base
 
 
+class UserPost(Base):
+    __tablename__ = "user_posts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    spot_id = Column(Integer, nullable=False, index=True)
+    image_path = Column(String, nullable=False)   # /uploads/filename.jpg
+    media_title = Column(String)                   # 作品名・番組名（ユーザー入力）
+    description = Column(Text)                     # 食べたもの・詳しい説明
+    nickname = Column(String)                      # 省略時はNone → 表示は「匿名さん」
+    created_at = Column(String)                    # ISO datetime string
+
+
+class SpotSubmission(Base):
+    """ユーザーから申請された新規聖地（審査待ち）"""
+    __tablename__ = "spot_submissions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)     # スポット名（必須）
+    address = Column(String)                   # 住所（任意）
+    media_title = Column(String)              # 作品名・番組名
+    description = Column(Text)               # 説明・食べたもの
+    image_path = Column(String)              # /uploads/filename.jpg（任意）
+    nickname = Column(String)                # 投稿者名
+    created_at = Column(String)
+    status = Column(String, default="pending")  # pending / approved / rejected
+
+
 class Spot(Base):
     __tablename__ = "spots"
 

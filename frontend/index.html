@@ -11,8 +11,9 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --pink: #f472b6; --pink-dark: #ec4899; --pink-pale: #fce7f3;
-      --gold: #f59e0b; --white: #fff9fc; --text: #6b2d5e; --text-light: #be185d;
-      --glass: rgba(255,255,255,0.90);
+      --gold: #f59e0b; --gold-light: #fde68a; --white: #fff9fc; --text: #6b2d5e; --text-light: #be185d;
+      --glass: rgba(255,248,252,0.94);
+      --shimmer1: #ec4899; --shimmer2: #f59e0b; --shimmer3: #c026d3; --shimmer4: #f472b6;
       --peek: 80px;
       --safe-bottom: env(safe-area-inset-bottom, 0px);
       --safe-top: env(safe-area-inset-top, 0px);
@@ -29,36 +30,98 @@
     #header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
       display: flex; align-items: center; gap: 10px;
-      padding: calc(10px + var(--safe-top)) 16px 10px; min-height: 54px;
-      background: var(--glass); backdrop-filter: blur(12px);
+      padding: calc(10px + var(--safe-top)) 16px 12px; min-height: 66px;
+      background:
+        linear-gradient(120deg,
+          rgba(255,210,240,0.97) 0%,
+          rgba(255,245,225,0.97) 35%,
+          rgba(245,225,255,0.97) 65%,
+          rgba(255,215,240,0.97) 100%);
+      backdrop-filter: blur(20px);
       border-bottom: 1.5px solid rgba(244,114,182,.25);
-      box-shadow: 0 2px 16px rgba(236,72,153,.12);
+      box-shadow:
+        0 2px 28px rgba(236,72,153,.18),
+        0 1px 0 rgba(255,255,255,.9) inset;
     }
-    .logo { font-size: 1.5rem; animation: bounce 2.5s ease-in-out infinite; }
-    @keyframes bounce { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-4px) rotate(3deg)} }
+    /* Pearlescent overlay */
+    #header::before {
+      content: '';
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 80% at 15% 60%, rgba(255,255,255,.55) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 85% 30%, rgba(255,235,255,.4) 0%, transparent 60%);
+    }
+    .logo {
+      font-size: 2.1rem; flex-shrink: 0; position: relative; z-index: 1;
+      animation: bounce 2.5s ease-in-out infinite;
+      filter: drop-shadow(0 2px 8px rgba(236,72,153,.5));
+    }
+    @keyframes bounce { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-6px) rotate(5deg)} }
+    .header-title { flex: 1; min-width: 0; position: relative; z-index: 1; }
     #header h1 {
-      flex: 1; font-size: 1rem; font-weight: 700;
-      background: linear-gradient(135deg,#ec4899,#f59e0b,#f472b6);
+      font-size: 1.18rem; font-weight: 700; line-height: 1.15;
+      background: linear-gradient(90deg,
+        #ff6eb4 0%, #ffb347 18%, #dd6bff 36%, #6ec6ff 54%, #ff6eb4 72%, #ffb347 90%, #ff6eb4 100%);
+      background-size: 400% auto;
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      animation: holo-sweep 9s ease-in-out infinite;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    @keyframes holo-sweep {
+      0%   { background-position: 0% center; }
+      50%  { background-position: 200% center; }
+      100% { background-position: 0% center; }
+    }
+    .header-sub {
+      font-size: .58rem; font-weight: 700; letter-spacing: .14em;
+      color: #c026d3; opacity: .7; margin-top: 2px;
+      white-space: nowrap;
+    }
+    /* ===== TWINKLING SPARKLE STARS ===== */
+    .header-sparkles { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+    .hsp {
+      position: absolute; font-weight: 900;
+      animation: hsp-twinkle 2.8s ease-in-out infinite;
+      opacity: 0;
+    }
+    @keyframes hsp-twinkle {
+      0%, 100% { opacity: 0;   transform: scale(.2) rotate(-20deg); }
+      35%, 65% { opacity: 1;   transform: scale(1)  rotate(12deg);  }
+    }
+    .hsp1 { top: 5px;    right: 18px;  font-size: .88rem; color: #f9a8d4; animation-delay: 0s;    animation-duration: 2.6s; }
+    .hsp2 { top: 2px;    right: 52px;  font-size: .55rem; color: #fde68a; animation-delay: .75s;  animation-duration: 2.2s; }
+    .hsp3 { top: 10px;   right: 36px;  font-size: .7rem;  color: #e879f9; animation-delay: 1.5s;  animation-duration: 3.0s; }
+    .hsp4 { bottom: 7px; right: 26px;  font-size: .5rem;  color: #93c5fd; animation-delay: .4s;   animation-duration: 2.4s; }
+    .hsp5 { bottom: 5px; right: 60px;  font-size: .75rem; color: #fbbf24; animation-delay: 1.1s;  animation-duration: 2.8s; }
+    .hsp6 { top: 50%;    right: 10px;  font-size: .45rem; color: #f472b6; animation-delay: 2.0s;  animation-duration: 2.0s; transform-origin: center; }
+
+    /* Shared slow glow pulse for CTA buttons */
+    @keyframes btn-glow-pink {
+      0%, 100% { box-shadow: 0 5px 18px rgba(236,72,153,.38), 0 2px 0 rgba(255,255,255,.35) inset; }
+      50%       { box-shadow: 0 8px 30px rgba(236,72,153,.60), 0 0 22px rgba(244,114,182,.28), 0 2px 0 rgba(255,255,255,.35) inset; }
+    }
+    @keyframes btn-glow-gold {
+      0%, 100% { box-shadow: 0 4px 16px rgba(245,158,11,.45), 0 0 0 3px rgba(253,230,138,.5); }
+      50%       { box-shadow: 0 6px 24px rgba(245,158,11,.7),  0 0 0 6px rgba(253,230,138,.3);  }
     }
 
     /* NEAR ME FAB */
     #near-me-btn {
       position: fixed; right: 16px; z-index: 810;
       bottom: calc(var(--peek) + 16px);
-      width: 54px; height: 54px; border-radius: 50%; border: none;
-      background: linear-gradient(135deg, #fde68a, #f59e0b);
-      font-size: 1.6rem; cursor: pointer;
-      box-shadow: 0 4px 18px rgba(245,158,11,.5), 0 0 0 3px rgba(253,230,138,.4);
+      width: 56px; height: 56px; border-radius: 50%; border: none;
+      background: linear-gradient(135deg, #fde68a 0%, #f59e0b 60%, #fb923c 100%);
+      font-size: 1.7rem; cursor: pointer;
+      animation: btn-glow-gold 3s ease-in-out infinite;
       display: flex; align-items: center; justify-content: center;
       transition: transform .15s;
     }
-    #near-me-btn:hover  { transform: scale(1.1); }
+    #near-me-btn:hover  { transform: scale(1.12); }
     #near-me-btn:active { transform: scale(.93); }
     #near-me-btn.loading { animation: pulse-gold .8s ease-in-out infinite; }
     @keyframes pulse-gold {
-      0%,100%{ box-shadow:0 4px 18px rgba(245,158,11,.5),0 0 0 3px rgba(253,230,138,.4); }
-      50%    { box-shadow:0 4px 18px rgba(245,158,11,.8),0 0 0 14px rgba(253,230,138,.2); }
+      0%,100%{ box-shadow:0 4px 20px rgba(245,158,11,.55),0 0 0 3px rgba(253,230,138,.5); }
+      50%    { box-shadow:0 4px 20px rgba(245,158,11,.85),0 0 0 16px rgba(253,230,138,.2); }
     }
 
     /* TOAST */
@@ -76,10 +139,10 @@
     #drawer {
       position: fixed; left: 0; right: 0; bottom: 0;
       height: 90vh; z-index: 800;
-      background: var(--white);
-      border-radius: 22px 22px 0 0;
-      border-top: 2px solid rgba(244,114,182,.3);
-      box-shadow: 0 -8px 40px rgba(236,72,153,.18);
+      background: linear-gradient(180deg, #fff9fd 0%, var(--white) 60px);
+      border-radius: 26px 26px 0 0;
+      border-top: 2px solid rgba(244,114,182,.35);
+      box-shadow: 0 -8px 48px rgba(236,72,153,.22);
       transform: translateY(calc(90vh - var(--peek)));
       transition: transform .38s cubic-bezier(.32,.72,0,1);
       display: flex; flex-direction: column; overflow: hidden;
@@ -97,9 +160,10 @@
     }
     #drawer-handle:active { cursor: grabbing; }
     .handle-bar {
-      width: 38px; height: 4px;
-      background: linear-gradient(90deg,#f9a8d4,#fde68a);
-      border-radius: 2px; margin: 0 auto 10px;
+      width: 44px; height: 5px;
+      background: linear-gradient(90deg,#f9a8d4,#fde68a,#e879f9,#f9a8d4);
+      border-radius: 3px; margin: 0 auto 10px;
+      box-shadow: 0 1px 6px rgba(236,72,153,.25);
     }
     #drawer-peek-row {
       display: flex; align-items: center; gap: 8px;
@@ -110,12 +174,14 @@
       background: var(--pink-pale); padding: 3px 10px; border-radius: 999px;
     }
     #drawer-filter-btn {
-      padding: 5px 12px; border: none; border-radius: 999px;
-      background: linear-gradient(135deg, var(--pink), var(--gold));
+      padding: 6px 14px; border: none; border-radius: 999px;
+      background: linear-gradient(135deg, #ec4899 0%, #c026d3 50%, #f59e0b 100%);
       color: #fff; font-family: 'Zen Maru Gothic',sans-serif;
       font-size: .74rem; font-weight: 700; cursor: pointer;
-      box-shadow: 0 2px 8px rgba(236,72,153,.3); white-space: nowrap;
+      animation: btn-glow-pink 3.5s ease-in-out infinite;
+      white-space: nowrap; transition: transform .15s;
     }
+    #drawer-filter-btn:hover { transform: scale(1.05); }
 
     /* Search area */
     #drawer-search {
@@ -190,13 +256,15 @@
 
     .s-card {
       display: flex; gap: 0;
-      background: white; border-radius: 14px;
-      border: 1.5px solid rgba(244,114,182,.13);
-      box-shadow: 0 2px 10px rgba(236,72,153,.07);
+      background: linear-gradient(135deg, #ffffff 0%, #fff8fd 100%);
+      border-radius: 16px;
+      border: 1.5px solid rgba(244,114,182,.18);
+      box-shadow: 0 3px 14px rgba(236,72,153,.09), 0 1px 3px rgba(244,114,182,.12);
       margin-bottom: 10px; overflow: hidden; cursor: pointer;
       transition: transform .14s, box-shadow .14s;
       -webkit-tap-highlight-color: transparent;
     }
+    .s-card:hover  { box-shadow: 0 6px 22px rgba(236,72,153,.16), 0 1px 3px rgba(244,114,182,.18); }
     .s-card:active { transform: scale(.98); box-shadow: 0 1px 4px rgba(236,72,153,.08); }
     .s-card-bar   { width: 5px; flex-shrink: 0; }
     .s-card-thumb {
@@ -261,16 +329,17 @@
       cursor:pointer; transition:all .15s;
     }
     .chip:hover  { border-color:var(--pink-dark); background:rgba(252,231,243,.8); }
-    .chip.active { background:linear-gradient(135deg,var(--pink),#f59e0b); border-color:transparent; color:#fff; box-shadow:0 3px 10px rgba(236,72,153,.35); }
+    .chip.active { background:linear-gradient(135deg,var(--pink),#c026d3); border-color:transparent; color:#fff; box-shadow:0 3px 12px rgba(192,38,211,.35); }
     .f-actions   { display:flex; gap:10px; margin-top:16px; }
     .btn-apply {
-      flex:1; padding:12px; background:linear-gradient(135deg,var(--pink),#f59e0b);
+      flex:1; padding:12px;
+      background:linear-gradient(135deg,#ec4899 0%,#c026d3 55%,#f59e0b 100%);
       color:#fff; border:none; border-radius:14px;
       font-family:'Zen Maru Gothic',sans-serif; font-size:.93rem; font-weight:700;
-      cursor:pointer; box-shadow:0 4px 14px rgba(236,72,153,.35);
-      transition:opacity .15s, transform .12s;
+      cursor:pointer; animation:btn-glow-pink 3s ease-in-out infinite;
+      transition:transform .12s;
     }
-    .btn-apply:hover { opacity:.9; transform:scale(1.02); }
+    .btn-apply:hover { transform:scale(1.02); }
     .btn-reset {
       padding:12px 18px; background:rgba(255,255,255,.7); color:var(--text-light);
       border:2px solid #f9a8d4; border-radius:14px;
@@ -291,18 +360,31 @@
       width:100%; max-width:600px; margin:0 auto;
       background:var(--white); border-radius:26px 26px 0 0;
       border-top:2px solid rgba(244,114,182,.3);
-      padding:0 0 calc(40px + var(--safe-bottom));
+      padding:0;
       box-shadow:0 -12px 40px rgba(236,72,153,.2);
       transform:translateY(100%); transition:transform .35s cubic-bezier(.34,1.56,.64,1);
-      max-height:85vh; overflow-y:auto;
+      max-height:85vh; overflow:hidden;
+      display:flex; flex-direction:column;
     }
     #modal-overlay.on #modal { transform:translateY(0); }
-    .m-header {
-      position:sticky; top:0; background:var(--white);
-      padding:14px 20px 12px; border-bottom:1.5px solid rgba(244,114,182,.15); z-index:1;
+    /* スクロール領域 */
+    .modal-scroll { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; min-height:0; }
+    /* 常時表示フッター：ここに行くボタン */
+    #modal-footer {
+      flex-shrink:0;
+      padding:10px 16px calc(14px + var(--safe-bottom));
+      background:var(--white);
+      border-top:1.5px solid rgba(244,114,182,.12);
+      box-shadow:0 -4px 16px rgba(236,72,153,.08);
     }
-    .m-drag { width:38px; height:4px; background:#f9a8d4; border-radius:2px; margin:0 auto 12px; }
-    .m-name { font-size:1.15rem; font-weight:700; color:var(--text); line-height:1.3; margin-bottom:5px; }
+    #modal-footer .go-btn { margin-top:0; }
+    .m-header {
+      position:sticky; top:0;
+      background:linear-gradient(180deg, #fff8fd 0%, var(--white) 100%);
+      padding:14px 20px 12px; border-bottom:1.5px solid rgba(244,114,182,.18); z-index:1;
+    }
+    .m-drag { width:44px; height:5px; background:linear-gradient(90deg,#f9a8d4,#fde68a,#e879f9,#f9a8d4); border-radius:3px; margin:0 auto 12px; box-shadow:0 1px 6px rgba(236,72,153,.25); }
+    .m-name { font-size:1.18rem; font-weight:700; color:var(--text); line-height:1.3; margin-bottom:5px; letter-spacing:.01em; }
     .m-addr { font-size:.78rem; color:#9d6080; }
     .score-bar { display:flex; align-items:center; gap:10px; margin-top:10px; }
     .score-icon { font-size:1.4rem; }
@@ -338,16 +420,158 @@
     .m-item::before { content:"🍽️"; }
     .go-btn {
       display:flex; align-items:center; justify-content:center; gap:8px;
-      width:100%; padding:14px; margin-top:14px;
-      background:linear-gradient(135deg,var(--pink),#f59e0b);
-      background-size:200% 200%; animation:gshift 4s ease infinite;
-      color:#fff; border:none; border-radius:15px;
+      width:100%; padding:15px; margin-top:14px;
+      background:linear-gradient(135deg,#ec4899 0%,#f59e0b 50%,#c026d3 100%);
+      color:#fff; border:none; border-radius:16px;
       font-family:'Zen Maru Gothic',sans-serif; font-size:.98rem; font-weight:700;
-      cursor:pointer; box-shadow:0 6px 20px rgba(236,72,153,.4); text-decoration:none;
-      transition:transform .12s, opacity .12s;
+      cursor:pointer; text-decoration:none; letter-spacing:.03em;
+      animation:btn-glow-pink 3s ease-in-out infinite;
+      transition:transform .12s;
     }
-    .go-btn:hover { transform:scale(1.02); opacity:.92; }
-    @keyframes gshift { 0%{background-position:0 50%} 50%{background-position:100% 50%} 100%{background-position:0 50%} }
+    .go-btn:hover { transform:scale(1.02); }
+
+    /* ===== USER POSTS ===== */
+    .user-post {
+      background:#fffbf0; border:1.5px solid rgba(245,158,11,.2);
+      border-radius:14px; padding:12px; margin-bottom:12px;
+    }
+    .up-badge {
+      display:inline-block; background:rgba(245,158,11,.15); color:#b45309;
+      font-size:.62rem; font-weight:700; padding:2px 8px; border-radius:999px; margin-right:6px;
+    }
+    .up-notice { font-size:.62rem; color:#b08090; }
+    .up-img-wrap {
+      width:100%; margin:8px 0; border-radius:10px; overflow:hidden;
+      background:#f8f0f5;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .up-img {
+      display:block; max-width:100%; max-height:360px;
+      width:auto; height:auto;
+      object-fit:contain; border-radius:10px;
+    }
+    .up-media { font-size:.76rem; font-weight:700; color:var(--text-light); margin-bottom:5px; }
+    .up-comment { font-size:.84rem; color:var(--text); line-height:1.55; margin-bottom:6px; }
+    .up-meta { display:flex; justify-content:space-between; font-size:.71rem; color:#9d6080; }
+    .up-nick { font-weight:700; }
+    .no-posts { text-align:center; color:#b08090; font-size:.84rem; padding:20px 0; }
+    .post-form {
+      background:var(--pink-pale); border:1.5px dashed rgba(244,114,182,.4);
+      border-radius:14px; padding:14px; margin-top:8px;
+    }
+    .post-form-ttl { font-size:.8rem; font-weight:700; color:var(--text-light); margin-bottom:12px; }
+    .post-field-lbl { font-size:.72rem; font-weight:700; color:var(--pink-dark); margin:10px 0 4px; letter-spacing:.04em; }
+    .post-spot-display {
+      padding:8px 12px; background:white; border:1.5px solid rgba(244,114,182,.3);
+      border-radius:10px; font-size:.88rem; font-weight:700; color:var(--text); margin-bottom:2px;
+    }
+    .post-file-btn {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%; padding:10px; background:white; border:2px dashed #f9a8d4;
+      border-radius:10px; color:var(--text-light); font-family:'Zen Maru Gothic',sans-serif;
+      font-size:.82rem; font-weight:700; cursor:pointer;
+    }
+    #post-file { display:none; }
+    #post-preview { max-width:100%; max-height:240px; width:auto; height:auto; object-fit:contain; border-radius:8px; margin-top:8px; display:none; background:#f8f0f5; }
+    .post-input {
+      width:100%; padding:8px 12px; margin-top:8px;
+      border:1.5px solid rgba(244,114,182,.3); border-radius:10px;
+      font-family:'Zen Maru Gothic',sans-serif; font-size:.84rem; color:var(--text);
+      background:white; resize:none;
+    }
+    .post-input:focus { outline:none; border-color:var(--pink); box-shadow:0 0 0 3px rgba(244,114,182,.15); }
+    .post-submit-btn {
+      width:100%; padding:12px; margin-top:10px;
+      background:linear-gradient(135deg,#f59e0b 0%,#ec4899 55%,#c026d3 100%);
+      color:#fff; border:none; border-radius:13px;
+      font-family:'Zen Maru Gothic',sans-serif; font-size:.93rem; font-weight:700; cursor:pointer;
+      animation:btn-glow-pink 3s ease-in-out infinite;
+    }
+    .post-submit-btn:disabled { opacity:.5; cursor:not-allowed; animation:none; }
+    .post-disclaimer { font-size:.63rem; color:#b08090; text-align:center; margin-top:8px; line-height:1.5; }
+
+    /* ===== NEW SPOT FAB ===== */
+    #new-spot-btn {
+      position:fixed; left:16px; z-index:810;
+      bottom:calc(var(--peek) + 16px);
+      padding:0 18px; height:46px; border-radius:999px; border:none;
+      background:linear-gradient(135deg,#ec4899 0%,#c026d3 55%,#f472b6 100%);
+      color:#fff; font-family:'Zen Maru Gothic',sans-serif;
+      font-size:.82rem; font-weight:700; cursor:pointer;
+      animation:btn-glow-pink 3s ease-in-out infinite;
+      display:flex; align-items:center; gap:5px;
+      transition:transform .15s; white-space:nowrap;
+    }
+    #new-spot-btn:hover  { transform:scale(1.06); }
+    #new-spot-btn:active { transform:scale(.95); }
+
+    /* ===== X SHARE BUTTON ===== */
+    .x-share-btn {
+      display:inline-flex; align-items:center; gap:4px;
+      padding:5px 12px; border-radius:999px;
+      border:1.5px solid #1a1a2e; background:#1a1a2e; color:#fff;
+      font-family:'Zen Maru Gothic',sans-serif; font-size:.72rem; font-weight:700;
+      cursor:pointer; margin-top:7px; transition:opacity .15s;
+    }
+    .x-share-btn:hover { opacity:.82; }
+    .x-share-after {
+      display:flex; align-items:center; gap:8px; margin-top:10px;
+      background:#e8f5e9; border:1.5px solid #a5d6a7; border-radius:12px; padding:10px 14px;
+    }
+    .x-share-after span { font-size:.82rem; font-weight:700; color:#2e7d32; flex:1; }
+
+    /* ===== NEW SPOT MODAL ===== */
+    #new-spot-overlay {
+      position:fixed; inset:0; z-index:2100;
+      background:rgba(100,0,60,.35); backdrop-filter:blur(4px);
+      display:flex; align-items:flex-end;
+      opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    #new-spot-overlay.on { opacity:1; pointer-events:all; }
+    #new-spot-modal {
+      width:100%; max-width:600px; margin:0 auto;
+      background:var(--white); border-radius:26px 26px 0 0;
+      border-top:2px solid rgba(244,114,182,.3);
+      padding:0 0 calc(40px + var(--safe-bottom));
+      box-shadow:0 -12px 40px rgba(236,72,153,.2);
+      transform:translateY(100%); transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+      max-height:88vh; overflow-y:auto;
+    }
+    #new-spot-overlay.on #new-spot-modal { transform:translateY(0); }
+    .ns-header {
+      position:sticky; top:0; background:var(--white);
+      padding:14px 20px 12px; border-bottom:1.5px solid rgba(244,114,182,.15); z-index:1;
+    }
+    .ns-drag { width:38px; height:4px; background:#f9a8d4; border-radius:2px; margin:0 auto 12px; }
+    .ns-title { font-size:1.05rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+    .ns-sub { font-size:.75rem; color:#9d6080; }
+    .ns-form { padding:16px 20px; }
+    .ns-lbl { font-size:.72rem; font-weight:700; color:var(--pink-dark); margin:12px 0 4px; letter-spacing:.04em; }
+    .ns-req { color:#ec4899; }
+    .ns-input {
+      width:100%; padding:9px 12px;
+      border:1.5px solid rgba(244,114,182,.3); border-radius:10px;
+      font-family:'Zen Maru Gothic',sans-serif; font-size:.88rem; color:var(--text);
+      background:white; resize:none;
+    }
+    .ns-input:focus { outline:none; border-color:var(--pink); box-shadow:0 0 0 3px rgba(244,114,182,.15); }
+    #ns-file { display:none; }
+    #ns-preview { max-width:100%; max-height:200px; width:auto; height:auto; object-fit:contain; border-radius:8px; margin-top:8px; display:none; background:#f8f0f5; }
+    .ns-file-btn {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%; padding:10px; background:white; border:2px dashed #f9a8d4;
+      border-radius:10px; color:var(--text-light); font-family:'Zen Maru Gothic',sans-serif;
+      font-size:.82rem; font-weight:700; cursor:pointer;
+    }
+    .ns-submit-btn {
+      width:100%; padding:13px; margin-top:16px;
+      background:linear-gradient(135deg,#ec4899 0%,#c026d3 55%,#f59e0b 100%);
+      color:#fff; border:none; border-radius:14px;
+      font-family:'Zen Maru Gothic',sans-serif; font-size:1rem; font-weight:700; cursor:pointer;
+      animation:btn-glow-pink 3s ease-in-out infinite;
+    }
+    .ns-submit-btn:disabled { opacity:.5; cursor:not-allowed; animation:none; }
+    .ns-disclaimer { font-size:.63rem; color:#b08090; text-align:center; margin-top:8px; line-height:1.5; }
 
     /* MAP PINS */
     .pin-wrap { display:flex; flex-direction:column; align-items:center; cursor:pointer; transition:transform .2s; filter:drop-shadow(0 3px 5px rgba(0,0,0,.25)); }
@@ -365,6 +589,143 @@
       color:#fff; border:none; border-radius:10px;
       font-family:'Zen Maru Gothic',sans-serif; font-size:.8rem; font-weight:700; cursor:pointer; text-align:center;
     }
+
+    /* ===== MYLIST: ACTION BAR IN MODAL ===== */
+    .m-actions {
+      display:flex; gap:10px; padding:12px 16px 10px;
+      border-bottom:1.5px solid rgba(244,114,182,.12);
+    }
+    .ma-btn {
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      min-height:58px; padding:10px 4px; border-radius:14px;
+      border:1.5px solid rgba(244,114,182,.25); background:white;
+      font-family:'Zen Maru Gothic',sans-serif; font-size:.72rem; font-weight:700;
+      color:var(--text); cursor:pointer; transition:all .15s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .ma-btn .ma-ico { font-size:1.6rem; line-height:1; }
+    .ma-btn:hover  { background:var(--pink-pale); border-color:var(--pink); }
+    .ma-btn:active { transform:scale(.95); }
+    .ma-btn.ma-active { background:var(--pink-pale); border-color:var(--pink-dark); color:var(--pink-dark); }
+
+    /* Tag edit panel */
+    .m-tag-edit {
+      padding:10px 20px 10px; background:#fff9fc;
+      border-bottom:1.5px solid rgba(244,114,182,.1);
+    }
+    .m-tag-chips { display:flex; flex-wrap:wrap; gap:5px; min-height:22px; margin-bottom:8px; }
+    .m-tc {
+      display:inline-flex; align-items:center; gap:2px; padding:3px 9px;
+      border-radius:999px; background:linear-gradient(135deg,#fce7f3,#ede9fe);
+      color:var(--text); font-size:.73rem; font-weight:700;
+    }
+    .m-tc-del {
+      background:none; border:none; cursor:pointer;
+      color:#c084a8; font-size:.85rem; line-height:1; padding:0 0 0 2px;
+    }
+    .m-tag-input-row { display:flex; gap:6px; margin-bottom:7px; }
+    .m-tag-input {
+      flex:1; padding:6px 10px; border:1.5px solid rgba(244,114,182,.3); border-radius:8px;
+      font-family:'Zen Maru Gothic',sans-serif; font-size:.82rem; color:var(--text);
+      background:white; outline:none;
+    }
+    .m-tag-input:focus { border-color:var(--pink); }
+    .m-tag-add {
+      padding:6px 12px; background:var(--pink); color:white;
+      border:none; border-radius:8px;
+      font-family:'Zen Maru Gothic',sans-serif; font-size:.78rem; font-weight:700; cursor:pointer;
+    }
+    .m-tag-presets { display:flex; flex-wrap:wrap; gap:5px; }
+    .m-tag-presets button {
+      padding:3px 10px; border-radius:999px;
+      border:1.5px solid rgba(244,114,182,.28); background:white;
+      color:var(--text-light); font-family:'Zen Maru Gothic',sans-serif;
+      font-size:.71rem; font-weight:600; cursor:pointer; transition:all .12s;
+    }
+    .m-tag-presets button:hover { background:var(--pink-pale); border-color:var(--pink); }
+
+    /* Card badges */
+    .s-card { position:relative; }
+    .s-card-bdgs { display:flex; gap:2px; flex-shrink:0; }
+    .s-bdg { font-size:.82rem; line-height:1; }
+
+    /* Drawer mylist button */
+    #drawer-mylist-btn {
+      padding:6px 12px; border-radius:999px;
+      border:1.5px solid rgba(244,114,182,.3);
+      background:linear-gradient(135deg,#fce7f3,#ede9fe);
+      color:var(--pink-dark); font-family:'Zen Maru Gothic',sans-serif;
+      font-size:.74rem; font-weight:700; cursor:pointer;
+      white-space:nowrap; transition:all .15s;
+    }
+    #drawer-mylist-btn:hover { background:var(--pink-pale); }
+
+    /* ===== MYLIST PANEL ===== */
+    #ml-overlay {
+      position:fixed; inset:0; z-index:2200;
+      background:rgba(100,0,60,.35); backdrop-filter:blur(4px);
+      display:flex; align-items:flex-end;
+      opacity:0; pointer-events:none; transition:opacity .3s;
+    }
+    #ml-overlay.on { opacity:1; pointer-events:all; }
+    #ml-panel {
+      width:100%; max-width:600px; margin:0 auto;
+      background:var(--white); border-radius:26px 26px 0 0;
+      border-top:2px solid rgba(244,114,182,.3);
+      padding:0 0 calc(40px + var(--safe-bottom));
+      box-shadow:0 -12px 40px rgba(236,72,153,.2);
+      transform:translateY(100%); transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+      max-height:85vh; overflow-y:auto; display:flex; flex-direction:column;
+    }
+    #ml-overlay.on #ml-panel { transform:translateY(0); }
+    .ml-header {
+      position:sticky; top:0; background:linear-gradient(180deg,#fff8fd,var(--white));
+      padding:14px 20px 0; border-bottom:1.5px solid rgba(244,114,182,.12); z-index:1;
+    }
+    .ml-drag { width:44px; height:5px; background:linear-gradient(90deg,#f9a8d4,#fde68a,#e879f9); border-radius:3px; margin:0 auto 12px; }
+    .ml-title { font-size:1rem; font-weight:700; color:var(--text); margin-bottom:10px; }
+    .ml-tabs { display:flex; }
+    .ml-tab {
+      flex:1; padding:10px 4px; background:none; border:none;
+      border-bottom:3px solid transparent;
+      font-family:'Zen Maru Gothic',sans-serif; font-size:.82rem; font-weight:700;
+      color:#b08090; cursor:pointer; transition:all .15s;
+      display:flex; align-items:center; justify-content:center; gap:6px;
+    }
+    .ml-tab.active { color:var(--pink-dark); border-bottom-color:var(--pink-dark); }
+    .ml-count {
+      display:inline-flex; align-items:center; justify-content:center;
+      min-width:18px; height:18px; border-radius:999px; padding:0 5px;
+      background:var(--pink-pale); color:var(--pink-dark); font-size:.64rem; font-weight:700;
+    }
+    .ml-tab.active .ml-count { background:var(--pink-dark); color:white; }
+    #ml-tag-filter { display:flex; flex-wrap:wrap; gap:5px; padding:8px 0 6px; }
+    .ml-tf {
+      padding:3px 10px; border-radius:999px;
+      border:1.5px solid rgba(244,114,182,.3); background:white;
+      color:var(--text-light); font-family:'Zen Maru Gothic',sans-serif;
+      font-size:.71rem; font-weight:600; cursor:pointer; transition:all .12s;
+    }
+    .ml-tf.active { background:var(--pink-pale); border-color:var(--pink); color:var(--pink-dark); }
+    .ml-tf:hover  { background:var(--pink-pale); }
+    #ml-list { padding:10px 14px; }
+    .ml-card {
+      display:flex; gap:0; background:linear-gradient(135deg,#ffffff,#fff8fd);
+      border-radius:14px; border:1.5px solid rgba(244,114,182,.15);
+      box-shadow:0 2px 10px rgba(236,72,153,.07);
+      margin-bottom:8px; overflow:hidden; cursor:pointer; transition:transform .12s;
+    }
+    .ml-card:active { transform:scale(.98); }
+    .ml-card-bar  { width:5px; flex-shrink:0; }
+    .ml-card-body { flex:1; padding:10px 12px; min-width:0; }
+    .ml-card-name { font-size:.9rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+    .ml-card-sub  { font-size:.74rem; color:#9d6080; margin-bottom:6px; }
+    .ml-card-tags { display:flex; flex-wrap:wrap; gap:4px; }
+    .ml-badge { display:inline-block; padding:2px 8px; border-radius:999px; font-size:.65rem; font-weight:700; }
+    .ml-badge.wish { background:#fce7f3; color:#ec4899; }
+    .ml-badge.vis  { background:#d1fae5; color:#059669; }
+    .ml-badge.tag  { background:#ede9fe; color:#7c3aed; }
+    .ml-empty { text-align:center; color:#b08090; font-size:.88rem; padding:40px 20px; line-height:1.8; }
   </style>
 </head>
 <body>
@@ -372,11 +733,23 @@
 <div id="map"></div>
 
 <div id="header">
+  <div class="header-sparkles" aria-hidden="true">
+    <span class="hsp hsp1">✦</span>
+    <span class="hsp hsp2">✧</span>
+    <span class="hsp hsp3">✦</span>
+    <span class="hsp hsp4">⋆</span>
+    <span class="hsp hsp5">★</span>
+    <span class="hsp hsp6">✧</span>
+  </div>
   <span class="logo">🍍</span>
-  <h1>Princess Pineapple Paws</h1>
+  <div class="header-title">
+    <h1>Princess Pineapple Paws</h1>
+    <div class="header-sub">✦ STARTO 聖地巡礼マップ ✦</div>
+  </div>
 </div>
 
 <button id="near-me-btn" title="現在地から近い順に検索" onclick="searchNearMe()">🐾</button>
+<button id="new-spot-btn" onclick="openNewSpotModal()">＋ 聖地を登録</button>
 <div id="toast"></div>
 
 <!-- ===== DRAWER ===== -->
@@ -387,13 +760,14 @@
     <div id="drawer-peek-row">
       <span id="drawer-label">近くの聖地をチェック 🗺️</span>
       <span id="drawer-count">🍍 …</span>
+      <button id="drawer-mylist-btn" onclick="openMyList()">💖 マイリスト</button>
       <button id="drawer-filter-btn" onclick="openFP()">✦ 絞り込み</button>
     </div>
   </div>
 
   <div id="drawer-search">
     <div class="search-wrap">
-      <input id="search-input" type="search" placeholder="グループ名 / タレント名で検索..." autocomplete="off" oninput="onSearch(this.value)" />
+      <input id="search-input" type="search" placeholder="グループ名 / タレント名 / 店名 / 駅名 / 番組名で検索..." autocomplete="off" oninput="onSearch(this.value)" />
     </div>
     <div id="color-row"></div>
     <div id="filter-active">
@@ -447,6 +821,7 @@
 <!-- MODAL -->
 <div id="modal-overlay" onclick="closeModal(event)">
   <div id="modal">
+  <div class="modal-scroll">
     <div class="m-header">
       <div class="m-drag"></div>
       <div class="m-name" id="m-name"></div>
@@ -457,10 +832,40 @@
         <span class="score-lbl" id="m-score"></span>
       </div>
     </div>
+    <!-- マイリスト アクションバー -->
+    <div class="m-actions">
+      <button class="ma-btn" id="ma-wish" onclick="toggleWish()">
+        <span class="ma-ico" id="ma-wish-icon">🤍</span><span>行きたい</span>
+      </button>
+      <button class="ma-btn" id="ma-vis" onclick="toggleBeen()">
+        <span class="ma-ico" id="ma-vis-icon">⬜</span><span>行った</span>
+      </button>
+      <button class="ma-btn" id="ma-tag-btn" onclick="toggleTagEdit()">
+        <span class="ma-ico">🏷️</span><span>タグ</span>
+      </button>
+    </div>
+    <!-- タグ編集エリア -->
+    <div class="m-tag-edit" id="m-tag-edit" style="display:none">
+      <div class="m-tag-chips" id="m-tag-chips"></div>
+      <div class="m-tag-input-row">
+        <input class="m-tag-input" id="m-tag-input" placeholder="タグを入力..." maxlength="12"
+               onkeydown="if(event.key==='Enter'){addTagFromInput();event.preventDefault()}" />
+        <button class="m-tag-add" onclick="addTagFromInput()">追加</button>
+      </div>
+      <div class="m-tag-presets">
+        <button onclick="addPresetTag('カフェ')">☕ カフェ</button>
+        <button onclick="addPresetTag('グルメ')">🍽️ グルメ</button>
+        <button onclick="addPresetTag('撮影地')">🎬 撮影地</button>
+        <button onclick="addPresetTag('屋外')">🌳 屋外</button>
+        <button onclick="addPresetTag('推し活')">💖 推し活</button>
+        <button onclick="addPresetTag('再訪したい')">🔄 再訪</button>
+      </div>
+    </div>
     <div class="m-tabs">
       <button class="t-btn active" onclick="tab('who',this)"><span class="ti">🎤</span>いつ・誰が</button>
       <button class="t-btn" onclick="tab('menu',this)"><span class="ti">🍽️</span>何を食べた</button>
       <button class="t-btn" onclick="tab('access',this)"><span class="ti">🗺️</span>行き方</button>
+      <button class="t-btn" onclick="tab('posts',this);loadUserPosts(currentSpotId)"><span class="ti">📸</span>みんなの投稿</button>
     </div>
     <div class="t-pane active" id="t-who">
       <div class="i-row"><span class="i-icon">📅</span><div class="i-body"><div class="i-lbl">放送・掲載日</div><div class="i-val" id="d-date"></div></div></div>
@@ -471,7 +876,87 @@
     <div class="t-pane" id="t-menu"><div id="d-menu"></div></div>
     <div class="t-pane" id="t-access">
       <div class="i-row"><span class="i-icon">🚃</span><div class="i-body"><div class="i-lbl">アクセス</div><div class="i-val" id="d-access"></div></div></div>
-      <a class="go-btn" id="d-maps" href="#" target="_blank" rel="noopener">🍍 ここに行く！Google Mapsで開く ✨</a>
+    </div>
+    <div class="t-pane" id="t-posts">
+      <div id="post-list"><p class="no-posts">読み込み中...</p></div>
+      <div class="post-form">
+        <div class="post-form-ttl">📍 ここに来た！</div>
+        <div class="post-spot-display" id="post-spot-name">—</div>
+
+        <!-- 写真 -->
+        <label class="post-file-btn" for="post-file">📸 写真を選ぶ</label>
+        <input type="file" id="post-file" accept="image/*" onchange="previewPost(this)" />
+        <img id="post-preview" alt="プレビュー" />
+
+        <!-- コメント -->
+        <textarea class="post-input" id="post-comment" rows="2" placeholder="コメント（任意）"></textarea>
+
+        <!-- 名前・ニックネーム -->
+        <input class="post-input" id="post-nickname" type="text" placeholder="名前・ニックネーム（省略で匿名）" maxlength="20" />
+
+        <button class="post-submit-btn" id="post-submit-btn" onclick="submitUserPost()">ここに来た！📸 投稿する</button>
+        <p class="post-disclaimer">※ 投稿は匿名で公開されます。個人情報が映らないようご注意ください。</p>
+      </div>
+    </div>
+  </div><!-- /modal-scroll -->
+  <!-- 常時表示フッター -->
+  <div id="modal-footer">
+    <a class="go-btn" id="d-maps" href="#" target="_blank" rel="noopener">📍 ここに行く！Google Maps で開く</a>
+  </div>
+  </div>
+</div>
+
+<!-- ===== マイリストパネル ===== -->
+<div id="ml-overlay" onclick="closeMyList(event)">
+  <div id="ml-panel">
+    <div class="ml-header">
+      <div class="ml-drag"></div>
+      <div class="ml-title">💖 マイリスト</div>
+      <div class="ml-tabs">
+        <button class="ml-tab active" id="ml-tab-wish" onclick="switchMLTab('wish',this)">
+          ❤️ 行きたい <span class="ml-count" id="ml-wish-count">0</span>
+        </button>
+        <button class="ml-tab" id="ml-tab-vis" onclick="switchMLTab('vis',this)">
+          ✅ 行った <span class="ml-count" id="ml-vis-count">0</span>
+        </button>
+      </div>
+      <div id="ml-tag-filter"></div>
+    </div>
+    <div id="ml-list"></div>
+  </div>
+</div>
+
+<!-- ===== 新規聖地登録モーダル ===== -->
+<div id="new-spot-overlay" onclick="closeNewSpotModal(event)">
+  <div id="new-spot-modal">
+    <div class="ns-header">
+      <div class="ns-drag"></div>
+      <div class="ns-title">✨ 新しい聖地を登録する</div>
+      <div class="ns-sub">まだ登録されていない場所を教えてください。審査後に掲載されます。</div>
+    </div>
+    <div class="ns-form">
+      <div class="ns-lbl">① スポット名 <span class="ns-req">※必須</span></div>
+      <input class="ns-input" id="ns-name" type="text" placeholder="例）〇〇カフェ、〇〇公園" maxlength="80" />
+
+      <div class="ns-lbl">② 住所（わかる範囲で）</div>
+      <input class="ns-input" id="ns-address" type="text" placeholder="例）東京都渋谷区〇〇1-2-3" maxlength="100" />
+
+      <div class="ns-lbl">③ 作品名・テレビ番組名</div>
+      <input class="ns-input" id="ns-media" type="text" placeholder="例）それSnow Manにやらせてみて、なにわ男子の遠足" maxlength="80" />
+
+      <div class="ns-lbl">④ 説明・食べたもの</div>
+      <textarea class="ns-input" id="ns-desc" rows="3" placeholder="例）○○が食べていたパフェが有名です。撮影場所は2Fのテラス席。"></textarea>
+
+      <div class="ns-lbl">⑤ 写真（任意）</div>
+      <label class="ns-file-btn" for="ns-file">📸 画像を選ぶ（任意）</label>
+      <input type="file" id="ns-file" accept="image/*" onchange="previewNewSpot(this)" />
+      <img id="ns-preview" alt="プレビュー" />
+
+      <div class="ns-lbl">⑥ 名前・ニックネーム（省略で匿名）</div>
+      <input class="ns-input" id="ns-nick" type="text" placeholder="例）さくらファン" maxlength="20" />
+
+      <button class="ns-submit-btn" id="ns-submit-btn" onclick="submitNewSpot()">📍 この聖地を投稿する</button>
+      <p class="ns-disclaimer">※ 投稿内容は審査後に掲載されます。個人情報・誹謗中傷は掲載できません。</p>
     </div>
   </div>
 </div>
@@ -532,7 +1017,13 @@ L.control.zoom({position:'topright'}).addTo(map);
 let allSpots=[], shownSpots=[], markerMap=new Map(), myMarker=null;
 let filters={group:'',media:'',freshness:''};
 let drawerState='peek';
-let visited=new Set(JSON.parse(localStorage.getItem('v')||'[]'));
+let visited  = new Set(JSON.parse(localStorage.getItem('v')    ||'[]'));
+let wishlist = new Set(JSON.parse(localStorage.getItem('wl')   ||'[]'));
+let been     = new Set(JSON.parse(localStorage.getItem('been') ||'[]'));
+let spotTags = JSON.parse(localStorage.getItem('stags')||'{}');
+function saveWL()   { localStorage.setItem('wl',   JSON.stringify([...wishlist])); }
+function saveBeen() { localStorage.setItem('been', JSON.stringify([...been])); }
+function saveTags() { localStorage.setItem('stags', JSON.stringify(spotTags)); }
 
 // ===== TOAST =====
 let toastT;
@@ -643,15 +1134,18 @@ function renderCards(spots){
     const fl=v==='fresh'?'フレッシュ（30日以内）':v==='ripe'?'完熟（〜1年）':'ドライパイン（1年以上）';
     const mc={TV:'s-tag-tv',YouTube:'s-tag-yt','雑誌':'s-tag-mag',SNS:'s-tag-sns'}[s.media_type]||'s-tag-tv';
     const dist=s.distance_meters!=null?`<span class="s-card-dist">${s.distance_meters<1000?s.distance_meters+'m':(s.distance_meters/1e3).toFixed(1)+'km'}</span>`:'';
+    const wBdg=wishlist.has(s.id)?'<span class="s-bdg" title="行きたい">❤️</span>':'';
+    const bBdg=been.has(s.id)?'<span class="s-bdg" title="行った">✅</span>':'';
     const card=document.createElement('div');
     card.className='s-card';
     card.innerHTML=`
       <div class="s-card-bar" style="background:${color}"></div>
       <div class="s-card-thumb" style="background:${color}18">${ge(s.group_name)}</div>
       <div class="s-card-body">
-        <div class="s-card-top"><div class="s-card-name">${esc(s.name)}</div>${dist}</div>
+        <div class="s-card-top"><div class="s-card-name">${esc(s.name)}</div>${dist}<div class="s-card-bdgs">${wBdg}${bBdg}</div></div>
         <div class="s-card-tags">
           <span class="s-tag" style="background:${color};color:#fff;opacity:.92">${esc(s.group_name||'')}</span>
+          ${allSpots.filter(x=>x.id!==s.id&&x.name===s.name&&x.group_name!==s.group_name).map(x=>{const c2=gc(x.group_name);return`<span class="s-tag" style="background:${c2};color:#fff;opacity:.7">${esc(x.group_name)}</span>`;}).join('')}
           <span class="s-tag ${mc}">${esc(s.media_type||'')}</span>
         </div>
         <div class="s-card-talent">⭐ ${esc(s.talent_name||'')}</div>
@@ -660,7 +1154,7 @@ function renderCards(spots){
           <div class="s-mini-bar"><div class="s-mini-fill ${v}" style="width:${score}%"></div></div>
         </div>
       </div>`;
-    card.addEventListener('click',()=>flyTo(s));
+    card.addEventListener('click',()=>openModal(s.id));
     list.insertBefore(card,empty);
   });
 }
@@ -706,7 +1200,7 @@ function onSearch(v){
   searchT=setTimeout(()=>{
     const q=v.trim().toLowerCase();
     if(q){
-      const f=allSpots.filter(s=>(s.group_name||'').toLowerCase().includes(q)||(s.talent_name||'').toLowerCase().includes(q)||(s.name||'').toLowerCase().includes(q));
+      const f=allSpots.filter(s=>(s.group_name||'').toLowerCase().includes(q)||(s.talent_name||'').toLowerCase().includes(q)||(s.name||'').toLowerCase().includes(q)||(s.address||'').toLowerCase().includes(q)||(s.access_info||'').toLowerCase().includes(q)||(s.media_title||'').toLowerCase().includes(q));
       render(f); showFA(`"${v}" で検索中`); snap('half');
     }else{
       render(allSpots); hideFA();
@@ -828,11 +1322,27 @@ function openModal(id){
   document.getElementById('m-score').textContent=freshnessLabels[v]||'';
   document.getElementById('d-date').textContent=fmtDate(s.broadcast_date);
   const color=gc(s.group_name);
-  const talentTags=(s.talent_name||'').split(/[・,、]/).map(t=>t.trim()).filter(Boolean)
-    .map(t=>`<span class="tag tag-group">${esc(t)}</span>`).join('');
+  // 同名スポットの他グループを取得
+  const coVisitors=allSpots.filter(x=>x.id!==s.id&&x.name===s.name&&x.group_name!==s.group_name);
+  // group_names から全グループリストを取得
+  let allGrps=[];
+  try{allGrps=JSON.parse(s.group_names||'[]');}catch(e){}
+  if(!allGrps.length&&s.group_name)allGrps=[s.group_name];
+  // 現グループのタレントタグ（グループ名はすべて除外）
+  const talentParts=(s.talent_name||'').split(/[・,、]/).map(t=>t.trim()).filter(Boolean)
+    .filter(t=>!allGrps.includes(t));
+  const talentTags=talentParts.map(t=>`<span class="tag tag-group">${esc(t)}</span>`).join('');
+  // group_names に含まれる全グループタグ
+  const allGroupTags=allGrps.map(g=>{const cg=gc(g);return`<span class="tag" style="background:${cg}22;color:${cg}">${esc(g)}</span>`;}).join('');
+  // 共訪問グループのタレント+グループタグ（別スポットIDで同名のもの）
+  const cvTagsHtml=coVisitors.filter(x=>!allGrps.includes(x.group_name)).map(x=>{
+    const c2=gc(x.group_name);
+    const cvParts=(x.talent_name||'').split(/[・,、]/).map(t=>t.trim()).filter(Boolean).filter(t=>t!==x.group_name);
+    const cvMemberTags=cvParts.map(t=>`<span class="tag tag-group">${esc(t)}</span>`).join('');
+    return `${cvMemberTags}<span class="tag" style="background:${c2}22;color:${c2};cursor:pointer" onclick="openSpot(${x.id})" title="クリックで切り替え">${esc(x.group_name)}</span>`;
+  }).join(' ');
   document.getElementById('d-talent').innerHTML=
-    `${talentTags}
-     ${s.group_name?`<span class="tag" style="background:${color}22;color:${color}">${esc(s.group_name)}</span>`:''}`;
+    `${talentTags}${allGroupTags}${cvTagsHtml?' '+cvTagsHtml:''}`;
   const mc={TV:'tag-tv',YouTube:'tag-yt','雑誌':'tag-mag',SNS:'tag-sns'}[s.media_type]||'tag-tv';
   // YouTubeリンク抽出: 完全URL・Shorts URL・動画IDに対応
   function extractYtUrl(url){
@@ -850,35 +1360,28 @@ function openModal(id){
     if(/^[A-Za-z0-9_-]{11}$/.test(url)) return 'https://youtu.be/'+url;
     return null;
   }
-  const ytUrl=(s.media_type==='YouTube')?extractYtUrl(s.source_url):null;
+  const ytUrl=extractYtUrl(s.source_url);
   const mediaLink=ytUrl?`<a href="${ytUrl}" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;opacity:.8">${esc(s.media_title||'')}</a>`:esc(s.media_title||'');
   document.getElementById('d-media').innerHTML=`<span class="tag ${mc}">${esc(s.media_type||'')}</span>${s.media_title?` ${mediaLink}`:''}`;
   const me=document.getElementById('d-menu');
   me.innerHTML=s.menu_items
-    ?(s.menu_items.split(/[、,，\n]/).map(x=>x.trim()).filter(Boolean).map(x=>`<div class="m-item">${esc(x)}</div>`).join(''))
+    ?(s.menu_items.split(/[、，\n]/).map(x=>x.trim()).filter(Boolean).map(x=>`<div class="m-item">${esc(x)}</div>`).join(''))
     :'<p style="color:#b08090;font-size:.85rem">メニュー情報なし</p>';
   document.getElementById('d-access').textContent=s.access_info||'情報なし';
   document.getElementById('d-maps').href=`https://www.google.com/maps/search/${encodeURIComponent(s.name+' '+(s.address||''))}`;
-  // 同名スポットを持つ他グループを表示
-  const coVisitors=allSpots.filter(x=>x.id!==s.id&&x.name===s.name);
-  const coRow=document.getElementById('d-covisit-row');
-  if(coVisitors.length>0){
-    const cvHtml=coVisitors.map(x=>{
-      const c2=gc(x.group_name);
-      const tname=x.talent_name?` <small style="opacity:.7">${esc(x.talent_name)}</small>`:'';
-      return `<span class="tag" style="background:${c2}22;color:${c2};cursor:pointer" onclick="openSpot(${x.id})">${esc(x.group_name||x.talent_name)}${tname}</span>`;
-    }).join(' ');
-    document.getElementById('d-covisit').innerHTML=cvHtml;
-    coRow.style.display='';
-  } else {
-    coRow.style.display='none';
-  }
+  // 他グループも訪問行はタレント行に統合済みなので非表示
+  document.getElementById('d-covisit-row').style.display='none';
+  currentSpotId = s.id;
   visited.add(s.id); localStorage.setItem('v',JSON.stringify([...visited]));
+  refreshModalActions();
+  const te=document.getElementById('m-tag-edit');
+  if(te){ te.style.display='none'; document.getElementById('ma-tag-btn').classList.remove('ma-active'); }
   render(shownSpots);
   tab('who',document.querySelector('.t-btn'));
   document.getElementById('modal-overlay').classList.add('on');
 }
 function closeModal(e){ if(e.target===document.getElementById('modal-overlay')) document.getElementById('modal-overlay').classList.remove('on'); }
+function openSpot(id){ openModal(id); }
 function tab(name,btn){
   document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.t-pane').forEach(p=>p.classList.remove('active'));
@@ -886,9 +1389,272 @@ function tab(name,btn){
   document.getElementById('t-'+name).classList.add('active');
 }
 
+// ===== USER POSTS =====
+let currentSpotId = null;
+
+function fmtPostDate(s){ try{const d=new Date(s);return`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;}catch{return s;} }
+
+function previewPost(input){
+  const prev=document.getElementById('post-preview');
+  if(input.files&&input.files[0]){
+    const reader=new FileReader();
+    reader.onload=e=>{prev.src=e.target.result;prev.style.display='block';};
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+// ===== X SHARE =====
+function shareToX(spotName, comment){
+  const text=`「${spotName}」に来ました！🍍\n${comment?comment+'\n':''}\n#STARTO聖地巡礼 #PrincessPineapplePaws`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,'_blank','width=560,height=420,noopener');
+}
+
+async function loadUserPosts(spotId){
+  const spot=allSpots.find(x=>x.id===spotId)||shownSpots.find(x=>x.id===spotId);
+  const spotName=spot?spot.name:'この聖地';
+  const nameEl=document.getElementById('post-spot-name');
+  if(nameEl&&spot) nameEl.textContent=spot.name;
+
+  const list=document.getElementById('post-list');
+  list.innerHTML='<p class="no-posts">読み込み中...</p>';
+  try{
+    const posts=await fetch(`/spots/${spotId}/posts`).then(r=>r.json());
+    if(!posts.length){
+      list.innerHTML='<p class="no-posts">まだ投稿がありません。最初の投稿者になりましょう！🍍</p>';
+      return;
+    }
+    list.innerHTML=posts.map(p=>`
+      <div class="user-post">
+        <span class="up-badge">📝 ユーザー投稿</span><span class="up-notice">※内容の正確性は保証されません</span>
+        <div class="up-img-wrap"><img class="up-img" src="${esc(p.image_path)}" alt="ユーザー投稿" /></div>
+        ${p.description?`<p class="up-comment">${esc(p.description)}</p>`:''}
+        <div class="up-meta">
+          <span class="up-nick">${esc(p.nickname||'匿名さん')}</span>
+          <span>${fmtPostDate(p.created_at)}</span>
+        </div>
+        <button class="x-share-btn" data-spot="${esc(spotName)}" data-desc="${esc(p.description||'')}" onclick="shareToX(this.dataset.spot,this.dataset.desc)">𝕏 Xでシェア</button>
+      </div>
+    `).join('');
+  }catch{
+    list.innerHTML='<p class="no-posts">投稿の読み込みに失敗しました</p>';
+  }
+}
+
+async function submitUserPost(){
+  const fileInput=document.getElementById('post-file');
+  if(!fileInput.files.length){toast('写真を選択してください');return;}
+  const fd=new FormData();
+  fd.append('file',fileInput.files[0]);
+  fd.append('comment',document.getElementById('post-comment').value.trim());
+  fd.append('nickname',document.getElementById('post-nickname').value.trim());
+  const btn=document.getElementById('post-submit-btn');
+  btn.disabled=true; btn.textContent='投稿中...';
+  try{
+    const res=await fetch(`/spots/${currentSpotId}/posts`,{method:'POST',body:fd});
+    if(!res.ok) throw new Error(await res.text());
+    // 投稿成功 → シェアボタン表示
+    const spot=allSpots.find(x=>x.id===currentSpotId)||shownSpots.find(x=>x.id===currentSpotId);
+    const spotName=spot?spot.name:'この聖地';
+    const comment=document.getElementById('post-comment').value.trim();
+    const shareArea=document.createElement('div');
+    shareArea.className='x-share-after';
+    shareArea.innerHTML=`<span>投稿しました！🍍</span><button class="x-share-btn" onclick="shareToX('${esc(spotName)}','${esc(comment)}')">𝕏 Xでシェア</button>`;
+    btn.parentNode.insertBefore(shareArea,btn);
+    setTimeout(()=>shareArea.remove(),15000);
+    fileInput.value='';
+    document.getElementById('post-comment').value='';
+    document.getElementById('post-nickname').value='';
+    const prev=document.getElementById('post-preview');
+    prev.src=''; prev.style.display='none';
+    loadUserPosts(currentSpotId);
+  }catch{ toast('投稿に失敗しました'); }
+  finally{ btn.disabled=false; btn.textContent='ここに来た！📸 投稿する'; }
+}
+
+// ===== 新規聖地登録モーダル =====
+function openNewSpotModal(){
+  document.getElementById('new-spot-overlay').classList.add('on');
+}
+function closeNewSpotModal(e){
+  if(e.target===document.getElementById('new-spot-overlay'))
+    document.getElementById('new-spot-overlay').classList.remove('on');
+}
+
+function previewNewSpot(input){
+  const prev=document.getElementById('ns-preview');
+  if(input.files&&input.files[0]){
+    const reader=new FileReader();
+    reader.onload=e=>{prev.src=e.target.result;prev.style.display='block';};
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+async function submitNewSpot(){
+  const name=document.getElementById('ns-name').value.trim();
+  if(!name){toast('スポット名を入力してください');return;}
+  const fd=new FormData();
+  fd.append('name',name);
+  fd.append('address',document.getElementById('ns-address').value.trim());
+  fd.append('media_title',document.getElementById('ns-media').value.trim());
+  fd.append('description',document.getElementById('ns-desc').value.trim());
+  fd.append('nickname',document.getElementById('ns-nick').value.trim());
+  const fileInput=document.getElementById('ns-file');
+  if(fileInput.files.length) fd.append('file',fileInput.files[0]);
+  const btn=document.getElementById('ns-submit-btn');
+  btn.disabled=true; btn.textContent='送信中...';
+  try{
+    const res=await fetch('/spot-submissions',{method:'POST',body:fd});
+    if(!res.ok) throw new Error(await res.text());
+    // 成功 → フォームをシェアエリアに差し替え
+    const nsForm=document.querySelector('.ns-form');
+    nsForm.innerHTML=`
+      <div style="text-align:center;padding:30px 0">
+        <div style="font-size:2.5rem;margin-bottom:12px">🍍</div>
+        <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:8px">投稿ありがとうございます！</div>
+        <div style="font-size:.82rem;color:#9d6080;margin-bottom:20px">審査後に掲載されます。</div>
+        <button class="x-share-btn" style="margin:0 auto" onclick="shareToX('${esc(name)}','')">𝕏 Xでシェア</button>
+      </div>
+    `;
+  }catch{ toast('送信に失敗しました'); }
+  finally{ btn.disabled=false; btn.textContent='📍 この聖地を投稿する'; }
+}
+
+// ===== MYLIST: WISHLIST & BEEN =====
+function toggleWish(){
+  if(!currentSpotId) return;
+  if(wishlist.has(currentSpotId)){ wishlist.delete(currentSpotId); toast('🤍 行きたいリストから削除しました'); }
+  else{ wishlist.add(currentSpotId); toast('❤️ 行きたいリストに追加しました！'); }
+  saveWL(); refreshModalActions(); renderCards(shownSpots);
+}
+function toggleBeen(){
+  if(!currentSpotId) return;
+  if(been.has(currentSpotId)){ been.delete(currentSpotId); toast('⬜ 行ったリストから削除しました'); }
+  else{ been.add(currentSpotId); toast('✅ 行ったリストに追加しました！'); }
+  saveBeen(); refreshModalActions(); renderCards(shownSpots);
+}
+function refreshModalActions(){
+  const id=currentSpotId; if(!id) return;
+  document.getElementById('ma-wish-icon').textContent = wishlist.has(id)?'❤️':'🤍';
+  document.getElementById('ma-vis-icon').textContent  = been.has(id)?'✅':'⬜';
+  document.getElementById('ma-wish').classList.toggle('ma-active', wishlist.has(id));
+  document.getElementById('ma-vis').classList.toggle('ma-active',  been.has(id));
+}
+
+// ===== MYLIST: TAGS =====
+function addTag(spotId, tag){
+  tag=String(tag||'').trim(); if(!tag||tag.length>12) return;
+  if(!spotTags[spotId]) spotTags[spotId]=[];
+  if(spotTags[spotId].includes(tag)) return;
+  spotTags[spotId].push(tag); saveTags(); renderTagEdit(spotId);
+}
+function addPresetTag(tag){ addTag(currentSpotId, tag); }
+function addTagFromInput(){
+  const inp=document.getElementById('m-tag-input');
+  addTag(currentSpotId, inp.value); inp.value='';
+}
+function removeTag(spotId, tag){
+  if(!spotTags[spotId]) return;
+  spotTags[spotId]=spotTags[spotId].filter(t=>t!==tag);
+  if(!spotTags[spotId].length) delete spotTags[spotId];
+  saveTags(); renderTagEdit(spotId);
+}
+function toggleTagEdit(){
+  const el=document.getElementById('m-tag-edit');
+  const open=el.style.display==='none';
+  el.style.display=open?'block':'none';
+  document.getElementById('ma-tag-btn').classList.toggle('ma-active', open);
+  if(open) renderTagEdit(currentSpotId);
+}
+function renderTagEdit(spotId){
+  const tags=spotTags[spotId]||[];
+  document.getElementById('m-tag-chips').innerHTML=tags.length
+    ? tags.map(t=>`<span class="m-tc">${esc(t)}<button class="m-tc-del" onclick="removeTag(${spotId},${JSON.stringify(t)})">×</button></span>`).join('')
+    : '<span style="color:#b08090;font-size:.78rem">タグなし</span>';
+}
+
+// ===== MYLIST PANEL =====
+let mlActiveTab='wish', mlTagFilter='';
+
+function openMyList(){
+  mlActiveTab='wish'; mlTagFilter='';
+  document.querySelectorAll('.ml-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('ml-tab-wish').classList.add('active');
+  document.getElementById('ml-overlay').classList.add('on');
+  renderMyList();
+}
+function closeMyList(e){
+  if(e && e.target!==document.getElementById('ml-overlay')) return;
+  document.getElementById('ml-overlay').classList.remove('on');
+}
+function switchMLTab(tab, btn){
+  mlActiveTab=tab; mlTagFilter='';
+  document.querySelectorAll('.ml-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); renderMyList();
+}
+function setMLTagFilter(tag){ mlTagFilter=tag; renderMyList(); }
+
+function renderMyList(){
+  // counts
+  document.getElementById('ml-wish-count').textContent=wishlist.size;
+  document.getElementById('ml-vis-count').textContent=been.size;
+
+  const ids=[...(mlActiveTab==='wish'?wishlist:been)];
+  const spots=ids.map(id=>allSpots.find(s=>s.id===id)).filter(Boolean);
+  const filtered=mlTagFilter ? spots.filter(s=>(spotTags[s.id]||[]).includes(mlTagFilter)) : spots;
+
+  // tag filter chips
+  const allTags=[...new Set(spots.flatMap(s=>spotTags[s.id]||[]))];
+  document.getElementById('ml-tag-filter').innerHTML=allTags.length
+    ? [`<button class="ml-tf ${!mlTagFilter?'active':''}" onclick="setMLTagFilter('')">すべて</button>`,
+       ...allTags.map(t=>`<button class="ml-tf ${mlTagFilter===t?'active':''}" onclick="setMLTagFilter(${JSON.stringify(t)})">${esc(t)}</button>`)
+      ].join('')
+    : '';
+
+  const list=document.getElementById('ml-list');
+  if(!filtered.length){
+    list.innerHTML=`<p class="ml-empty">${
+      mlActiveTab==='wish'
+        ? '❤️ まだ「行きたい」がありません<br><small>スポット詳細の「行きたい」ボタンで追加できます</small>'
+        : '✅ まだ「行った」がありません<br><small>スポット詳細の「行った」ボタンで追加できます</small>'
+    }</p>`;
+    return;
+  }
+  list.innerHTML=filtered.map(s=>{
+    const color=gc(s.group_name);
+    const tags=spotTags[s.id]||[];
+    return `<div class="ml-card" onclick="closeMyList(null);openModal(${s.id})">
+      <div class="ml-card-bar" style="background:${color}"></div>
+      <div class="ml-card-body">
+        <div class="ml-card-name">${esc(s.name)}</div>
+        <div class="ml-card-sub">${ge(s.group_name)} ${esc(s.group_name||'')}${s.media_title?' · '+esc(s.media_title):''}</div>
+        <div class="ml-card-tags">
+          ${wishlist.has(s.id)?'<span class="ml-badge wish">❤️ 行きたい</span>':''}
+          ${been.has(s.id)?'<span class="ml-badge vis">✅ 行った</span>':''}
+          ${tags.map(t=>`<span class="ml-badge tag">${esc(t)}</span>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ===== UTILS =====
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmtDate(d){ if(!d)return'日付不明'; try{const x=new Date(d);return`${x.getFullYear()}年${x.getMonth()+1}月${x.getDate()}日`;}catch{return d;} }
+function fmtDate(d){
+  if(!d) return '日付不明';
+  const s = String(d);
+  // 複数日付（「・」区切り）は各パーツを個別にフォーマット
+  if(s.includes('・')){
+    return s.split('・').map(p=>fmtDate(p.trim())).join('・');
+  }
+  // ISO形式 or 日本語年月日形式 → YYYY年M月D日
+  const m = s.match(/(\d{4})[\-年](\d{1,2})[\-月](\d{1,2})/);
+  if(m) return `${m[1]}年${parseInt(m[2])}月${parseInt(m[3])}日`;
+  // 年のみ（2018など）
+  const y = s.match(/^(\d{4})$/);
+  if(y) return `${y[1]}年`;
+  // 年月範囲や任意テキスト（「2023年4月〜6月」など）はそのまま
+  return s;
+}
 
 // ===== INIT =====
 loadGroupsUI();

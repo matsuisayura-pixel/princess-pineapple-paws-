@@ -1,20 +1,29 @@
+import shutil
+import uuid
 from contextlib import asynccontextmanager
+from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, Query, Depends, HTTPException
+from fastapi import FastAPI, File, Form, Query, Depends, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from config import DEFAULT_SEARCH_RADIUS_M, MAX_NEARBY_RESULTS
 from database import init_db, get_db
-from models import Spot
-from schemas import SpotOut, SpotWithDistance, TalentListResponse
+from models import Spot, UserPost, SpotSubmission
+from schemas import SpotOut, SpotWithDistance, TalentListResponse, UserPostOut, SpotSubmissionOut
 from services.geo import haversine
+
+UPLOADS_DIR = Path(__file__).parent / "uploads"
+ALLOWED_EXTS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    UPLOADS_DIR.mkdir(exist_ok=True)
     init_db()
     yield
 
@@ -32,6 +41,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
 
 @app.get("/health")
@@ -106,6 +117,90 @@ def get_spot(spot_id: int, db: Session = Depends(get_db)):
     return spot
 
 
+# ===== ユーザー投稿 =====
+
+@app.get("/spots/{spot_id}/posts", response_model=list[UserPostOut])
+def get_spot_posts(spot_id: int, db: Session = Depends(get_db)):
+    return (
+        db.query(UserPost)
+        .filter(UserPost.spot_id == spot_id)
+        .order_by(UserPost.id.desc())
+        .all()
+    )
+
+
+@app.post("/spots/{spot_id}/posts", response_model=UserPostOut)
+async def create_spot_post(
+    spot_id: int,
+    file: UploadFile = File(...),
+    comment: str = Form(""),
+    nickname: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    if not db.query(Spot).filter(Spot.id == spot_id).first():
+        raise HTTPException(status_code=404, detail="Spot not found")
+
+    ext = Path(file.filename or "").suffix.lower()
+    if ext not in ALLOWED_EXTS:
+        raise HTTPException(status_code=400, detail="画像ファイル（jpg/png/gif/webp）のみアップロード可能です")
+
+    filename = f"{uuid.uuid4().hex}{ext}"
+    dest = UPLOADS_DIR / filename
+    with dest.open("wb") as f:
+        shutil.copyfileobj(file.file, f)
+
+    post = UserPost(
+        spot_id=spot_id,
+        image_path=f"/uploads/{filename}",
+        description=comment.strip() or None,   # commentをdescriptionに格納
+        nickname=nickname.strip() or None,
+        created_at=datetime.now().isoformat(),
+    )
+    db.add(post)
+    db.commit()
+    db.refresh(post)
+    return post
+
+
+# ===== 新規聖地申請 =====
+
+@app.post("/spot-submissions", response_model=SpotSubmissionOut)
+async def create_spot_submission(
+    name: str = Form(...),
+    address: str = Form(""),
+    media_title: str = Form(""),
+    description: str = Form(""),
+    nickname: str = Form(""),
+    file: Optional[UploadFile] = File(default=None),
+    db: Session = Depends(get_db),
+):
+    image_path = None
+    if file and file.filename:
+        ext = Path(file.filename).suffix.lower()
+        if ext not in ALLOWED_EXTS:
+            raise HTTPException(status_code=400, detail="画像ファイル（jpg/png/gif/webp）のみアップロード可能です")
+        filename = f"sub_{uuid.uuid4().hex}{ext}"
+        dest = UPLOADS_DIR / filename
+        with dest.open("wb") as f:
+            shutil.copyfileobj(file.file, f)
+        image_path = f"/uploads/{filename}"
+
+    sub = SpotSubmission(
+        name=name.strip(),
+        address=address.strip() or None,
+        media_title=media_title.strip() or None,
+        description=description.strip() or None,
+        image_path=image_path,
+        nickname=nickname.strip() or None,
+        created_at=datetime.now().isoformat(),
+        status="pending",
+    )
+    db.add(sub)
+    db.commit()
+    db.refresh(sub)
+    return sub
+
+
 @app.get("/talents", response_model=TalentListResponse)
 def list_talents(db: Session = Depends(get_db)):
     rows = db.query(Spot.talent_name, Spot.group_name).distinct().all()
@@ -116,6 +211,5 @@ def list_talents(db: Session = Depends(get_db)):
 
 @app.get("/")
 def index():
-    from pathlib import Path
     frontend = Path(__file__).parent.parent / "frontend" / "index.html"
     return FileResponse(str(frontend))
