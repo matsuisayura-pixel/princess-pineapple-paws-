@@ -271,14 +271,14 @@ def insert_spot(conn, spot):
 
     conn.execute("""
         INSERT INTO spots (name, address, lat, lng, talent_name, group_name,
-            media_type, media_title, broadcast_date, menu_items, access_info, group_names, pineapple_score)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+            media_type, media_title, broadcast_date, menu_items, access_info, group_names, pineapple_score, source)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     """, (
         spot.get('name'), spot.get('address'), lat, lng,
         spot.get('talent_name'), spot.get('group_name'),
         spot.get('media_type'), spot.get('media_title'),
         spot.get('broadcast_date'), spot.get('menu_items'),
-        spot.get('access_info'), spot.get('group_names'), score,
+        spot.get('access_info'), spot.get('group_names'), score, 'sheet',
     ))
 
 
