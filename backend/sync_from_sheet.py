@@ -191,20 +191,61 @@ def parse_single_block(block):
     return spot
 
 
+_ZEN = '０１２３４５６７８９　－'
+_HAN = '0123456789 -'
+_ZEN_HAN_TABLE = str.maketrans(_ZEN, _HAN)
+_KANJI_NUM = {'一':'1','二':'2','三':'3','四':'4','五':'5',
+              '六':'6','七':'7','八':'8','九':'9'}
+
+def _zen2han(s):
+    s = s.translate(_ZEN_HAN_TABLE)
+    for k, v in _KANJI_NUM.items():
+        s = s.replace(k + '丁目', v + '丁目')
+    return s
+
+def _clean_addr(addr):
+    addr = _zen2han(addr)
+    addr = re.sub(r'【.*?】.*', '', addr)
+    m = re.match(r'^(.+?(?:\d+丁目\s*\d+-\d+|\d+-\d+-\d+|\d+-\d+))', addr)
+    if m:
+        return m.group(1).strip()
+    return addr.strip()
+
 def geocode_address(address):
-    """Nominatim (OpenStreetMap) で住所→緯度経度"""
+    """国土地理院API（日本専用）→ Nominatim フォールバック"""
     if not address:
         return None, None
+
+    is_overseas = any(w in address for w in ['Bangkok', 'Thailand', 'タイ', 'Korea', '中国', 'China'])
+
+    if not is_overseas:
+        cleaned = _clean_addr(address)
+        for q in [cleaned, _zen2han(address)]:
+            if not q:
+                continue
+            try:
+                url = 'https://msearch.gsi.go.jp/address-search/AddressSearch?q=' + urllib.parse.quote(q)
+                req = urllib.request.Request(url, headers={"User-Agent": "PineappleSeichi/1.0"})
+                with urllib.request.urlopen(req, timeout=10) as r:
+                    data = json.loads(r.read())
+                if data:
+                    lng, lat = data[0]['geometry']['coordinates']
+                    return lat, lng
+            except Exception as e:
+                print(f"  GSIエラー: {e}")
+            time.sleep(0.3)
+
+    # 海外 or GSI失敗 → Nominatim
     try:
         query = urllib.parse.quote(address)
-        url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1&countrycodes=jp"
-        req = urllib.request.Request(url, headers={"User-Agent": "PineappleSeichi/1.0"})
+        url = f"https://nominatim.openstreetmap.org/search?q={query}&format=json&limit=1"
+        req = urllib.request.Request(url, headers={"User-Agent": "PineappleSeichi/1.0 matsui.sayura@itghd.jp"})
         with urllib.request.urlopen(req, timeout=10) as r:
             data = json.loads(r.read())
         if data:
             return float(data[0]['lat']), float(data[0]['lon'])
     except Exception as e:
-        print(f"  ジオコードエラー: {e}")
+        print(f"  Nominatimエラー: {e}")
     return None, None
 
 
@@ -219,7 +260,7 @@ def spot_exists(conn, name, talent):
 
 def insert_spot(conn, spot):
     lat, lng = geocode_address(spot.get('address'))
-    time.sleep(1.1)  # Nominatim利用規約：1秒以上の間隔
+    time.sleep(0.3)  # GSI APIは制限緩め（Nominatimフォールバック時は内部でsleep済み）
 
     # ジオコーディング失敗時は東京中心座標を仮置き（pineapple_score=0で未確定扱い）
     if lat is None:

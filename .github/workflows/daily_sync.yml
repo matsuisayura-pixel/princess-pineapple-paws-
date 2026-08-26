@@ -1,0 +1,41 @@
+name: Daily Sheet Sync
+
+on:
+  schedule:
+    - cron: '0 15 * * *'  # 毎日 0:00 JST (= 15:00 UTC)
+  workflow_dispatch:       # 手動実行も可能
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run sync
+        run: python backend/sync_from_sheet.py
+        env:
+          PYTHONIOENCODING: utf-8
+
+      - name: Commit DB if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backend/data/pineapple_paws.db
+          if git diff --cached --quiet; then
+            echo "No new spots found, skipping commit."
+          else
+            git commit -m "Auto sync: $(date '+%Y-%m-%d') スプシ更新"
+            git push
+          fi
