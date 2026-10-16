@@ -258,7 +258,21 @@ def spot_exists(conn, name, talent):
     return cur.fetchone() is not None
 
 
+STARTO_GROUPS = {
+    'Snow Man', 'SixTONES', 'なにわ男子', 'King & Prince', 'Hey! Say! JUMP',
+    'Kis-My-Ft2', 'KAT-TUN', 'NEWS', 'KinKi Kids', 'SMAP', '嵐', 'V6',
+    'WEST.', 'Travis Japan', 'Aぇ! group', 'timelesz', 'SUPER EIGHT',
+    'ACEes', 'AmBitious', 'Boys be', 'B&ZAI', 'KEY TO LIT', 'A.B.C-Z', 'ket_to_lit',
+}
+
+def is_starto(group_name):
+    if not group_name:
+        return False
+    return any(p.strip() in STARTO_GROUPS for p in group_name.split('・'))
+
 def insert_spot(conn, spot):
+    if not is_starto(spot.get('group_name')):
+        return False
     lat, lng = geocode_address(spot.get('address'))
     time.sleep(0.3)  # GSI APIは制限緩め（Nominatimフォールバック時は内部でsleep済み）
 
